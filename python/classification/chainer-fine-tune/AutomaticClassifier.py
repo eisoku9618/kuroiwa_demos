@@ -149,7 +149,7 @@ class MyFrame(wx.Frame):
             if img_path:
                 ax_list[i].imshow(PIL.Image.open(img_path))
             title = p.getText()
-            if jp_font:
+            if self.jp_font:
                 fp = matplotlib.font_manager.FontProperties(fname=self.jp_font)
                 ax_list[i].set_xlabel(title, fontproperties=fp)
             else:
