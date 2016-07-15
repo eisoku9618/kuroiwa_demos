@@ -14,7 +14,7 @@ from chainer import optimizers
 mean_url = 'https://github.com/BVLC/caffe/raw/master/python/caffe/imagenet/ilsvrc_2012_mean.npy'
 caffemodel_url = 'http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel'
 dir_name = os.path.abspath(os.path.dirname(__file__))
-conf_dir_name = os.path.joint(dir_name, 'config')
+conf_dir_name = os.path.join(dir_name, 'config')
 MEAN_PATH = os.path.join(conf_dir_name, mean_url.split(os.sep)[-1])
 CAFFEMODEL_PATH = os.path.join(conf_dir_name, caffemodel_url.split(os.sep)[-1])
 PICKLE_PATH = os.path.join(conf_dir_name, 'bvlc_reference_caffenet.pkl')
