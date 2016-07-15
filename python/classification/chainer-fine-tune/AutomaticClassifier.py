@@ -14,6 +14,7 @@ import matplotlib.font_manager
 import PIL.Image
 import datetime
 import webbrowser
+import tempfile
 
 def getClassIndex(model, fname):
     img = skimage.img_as_float(skimage.io.imread(fname, as_grey=False)).astype(np.float32)
@@ -103,10 +104,10 @@ class MyFrame(wx.Frame):
         Loading CNNmodel takes a lot of time, so push it to background process
         """
         dir_name = os.path.abspath(os.path.dirname(__file__))
-        NEW_MODEL_PATH = os.path.join(dir_name, 'config/new_model.pkl')
+        NEW_MODEL_PATH = os.path.join(os.path.join(dir_name, 'config'), 'new_model.pkl')
         message = "[{}] Loading {} in the backgroud ...".format(
             datetime.datetime.now().strftime("%H:%M:%S"),
-            NEW_MODEL_PATH.split("/")[-1])
+            NEW_MODEL_PATH.split(os.sep)[-1])
         print message
         self.SetStatusText(message)
         job = multiprocessing.Process(target=self.setCNNmodel, args=(NEW_MODEL_PATH, ))
@@ -160,7 +161,8 @@ class MyFrame(wx.Frame):
             for s in ax_list[i].spines.values():
                 s.set_visible(False)
         f.tight_layout()
-        out_fname = "/tmp/output_{}.pdf".format(datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S"))
+        now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
+        out_fname = os.path.join(tempfile.gettempdir(), "output_{}.pdf".format(now))
         f.savefig(out_fname)
         # See http://stackoverflow.com/questions/1679798/how-to-open-a-file-with-the-standard-application
         webbrowser.open_new_tab(out_fname)
@@ -239,7 +241,7 @@ class ExplanationDrawingPanel(wx.Panel):
         if text:
             self.__text_expl.SetValue(text)
         else:
-            self.__text_expl.SetValue(fname.split('/')[-1])
+            self.__text_expl.SetValue(fname.split(os.sep)[-1])
 
     def getImagePath(self):
         return self.__button_img.getImagePath()
@@ -253,7 +255,7 @@ class ExplanationDrawingPanel(wx.Panel):
         if fname is None:
             return True
         else:
-            return text != fname.split('/')[-1]
+            return text != fname.split(os.sep)[-1]
 
     def reset(self):
         self.__button_img.reset()
@@ -394,9 +396,9 @@ if __name__=="__main__":
     my_model = None
     dir_name = os.path.abspath(os.path.dirname(__file__))
     dir_list = os.listdir(os.path.join(dir_name, 'data'))
-    dir_list = [os.path.join(dir_name, 'data/'+d) for d in dir_list]
+    dir_list = [os.path.join(os.path.join(dir_name, 'data'), d) for d in dir_list]
     dir_list = filter(lambda d: os.path.isdir(d), dir_list)
-    dir_list = [d.split('/')[-1] for d in dir_list]
+    dir_list = [d.split(os.sep)[-1] for d in dir_list]
     app = wx.App()
     frm = MyFrame()
     frm.Show()
