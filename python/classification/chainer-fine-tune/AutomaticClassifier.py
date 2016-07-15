@@ -10,6 +10,7 @@ import cPickle as pickle
 import numpy as np
 import skimage.io
 import matplotlib.pyplot
+import matplotlib.font_manager
 import PIL.Image
 import datetime
 import webbrowser
@@ -81,6 +82,13 @@ class MyFrame(wx.Frame):
         self.Bind(wx.EVT_IDLE, self.onIdle)
         self.Bind(wx.EVT_CLOSE, self.onClose)
 
+        # for Japanese fonts
+        jp_font_list = [f for f in matplotlib.font_manager.findSystemFonts() if "mincho" in f]
+        if len(jp_font_list) == 0:
+            self.jp_font = None
+        else:
+            self.jp_font = jp_font_list[0]
+
     def setCNNmodel(self, path):
         if not os.path.exists(path):
             message = "model is not found"
@@ -141,8 +149,11 @@ class MyFrame(wx.Frame):
             if img_path:
                 ax_list[i].imshow(PIL.Image.open(img_path))
             title = p.getText()
-            fp = matplotlib.font_manager.FontProperties(fname='/usr/share/fonts/truetype/takao-gothic/TakaoGothic.ttf')
-            ax_list[i].set_xlabel(title, fontproperties=fp)
+            if jp_font:
+                fp = matplotlib.font_manager.FontProperties(fname=self.jp_font)
+                ax_list[i].set_xlabel(title, fontproperties=fp)
+            else:
+                ax_list[i].set_xlabel(title)
             ax_list[i].tick_params(labelbottom='off', labelleft='off')
             ax_list[i].get_xaxis().set_ticks_position('none')
             ax_list[i].get_yaxis().set_ticks_position('none')
