@@ -14,33 +14,34 @@ from chainer import optimizers
 mean_url = 'https://github.com/BVLC/caffe/raw/master/python/caffe/imagenet/ilsvrc_2012_mean.npy'
 caffemodel_url = 'http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel'
 dir_name = os.path.abspath(os.path.dirname(__file__))
-MEAN_PATH = os.path.join(dir_name, 'config/'+format(mean_url.split("/")[-1]))
-CAFFEMODEL_PATH = os.path.join(dir_name, 'config/'+format(caffemodel_url.split("/")[-1]))
-PICKLE_PATH = os.path.join(dir_name, 'config/bvlc_reference_caffenet.pkl')
-NEW_MODEL_PATH = os.path.join(dir_name, 'config/new_model.pkl')
+conf_dir_name = os.path.joint(dir_name, 'config')
+MEAN_PATH = os.path.join(conf_dir_name, mean_url.split(os.sep)[-1])
+CAFFEMODEL_PATH = os.path.join(conf_dir_name, caffemodel_url.split(os.sep)[-1])
+PICKLE_PATH = os.path.join(conf_dir_name, 'bvlc_reference_caffenet.pkl')
+NEW_MODEL_PATH = os.path.join(conf_dir_name, 'new_model.pkl')
 
 if not os.path.exists(MEAN_PATH):
     import urllib
-    print "Downloading {}".format(mean_url.split("/")[-1])
+    print "Downloading {}".format(mean_url.split(os.sep)[-1])
     urllib.urlretrieve(mean_url, MEAN_PATH)
 
 if not os.path.exists(PICKLE_PATH):
     if not os.path.exists(CAFFEMODEL_PATH):
         import urllib
-        print "Downloading {}".format(caffemodel_url.split("/")[-1])
+        print "Downloading {}".format(caffemodel_url.split(os.sep)[-1])
         urllib.urlretrieve(caffemodel_url, CAFFEMODEL_PATH)
-    print "Converting {} to {}".format(caffemodel_url.split("/")[-1], PICKLE_PATH.split("/")[-1])
+    print "Converting {} to {}".format(caffemodel_url.split(os.sep)[-1], PICKLE_PATH.split(os.sep)[-1])
     import chainer.links.caffe
     model = chainer.links.caffe.caffe_function.CaffeFunction(CAFFEMODEL_PATH)
     pickle.dump(model, open(PICKLE_PATH, "wb"))
 
-print "Loading {}".format(PICKLE_PATH.split("/")[-1])
+print "Loading {}".format(PICKLE_PATH.split(os.sep)[-1])
 ref_model = pickle.load(open(PICKLE_PATH, "rb"))
 
 # CNN network
 print "Creating CNN"
 dir_list = os.listdir(os.path.join(dir_name, 'data'))
-dir_list = [os.path.join(dir_name, 'data/'+d) for d in dir_list]
+dir_list = [os.path.join(os.path.join(dir_name, 'data'), d) for d in dir_list]
 dir_list = filter(lambda d: os.path.isdir(d), dir_list)
 my_model = MyCNN(MEAN_PATH, len(dir_list)).to_cpu()
 copy_model(ref_model, my_model)
@@ -59,7 +60,7 @@ cls_list_train = []
 img_list_test = []
 cls_list_test = []
 for cls, d in enumerate(dir_list):
-    print d.split('/')[-1] + ' found'
+    print d.split(os.sep)[-1] + ' found'
     data_num = len(os.listdir(d))
     # assign 80% of all images are used as train data
     for img in os.listdir(d)[0:data_num/10*8]:
