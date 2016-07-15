@@ -14,23 +14,23 @@ from chainer import optimizers
 mean_url = 'https://github.com/BVLC/caffe/raw/master/python/caffe/imagenet/ilsvrc_2012_mean.npy'
 caffemodel_url = 'http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel'
 dir_name = os.path.abspath(os.path.dirname(__file__))
-conf_dir_name = os.path.joint(dir_name, 'config')
-MEAN_PATH = os.path.join(conf_dir_name, mean_url.split(os.sep)[-1])
-CAFFEMODEL_PATH = os.path.join(conf_dir_name, caffemodel_url.split(os.sep)[-1])
+conf_dir_name = os.path.join(dir_name, 'config')
+MEAN_PATH = os.path.join(conf_dir_name, mean_url.split('/')[-1])
+CAFFEMODEL_PATH = os.path.join(conf_dir_name, caffemodel_url.split('/')[-1])
 PICKLE_PATH = os.path.join(conf_dir_name, 'bvlc_reference_caffenet.pkl')
 NEW_MODEL_PATH = os.path.join(conf_dir_name, 'new_model.pkl')
 
 if not os.path.exists(MEAN_PATH):
     import urllib
-    print "Downloading {}".format(mean_url.split(os.sep)[-1])
+    print "Downloading {}".format(mean_url.split('/')[-1])
     urllib.urlretrieve(mean_url, MEAN_PATH)
 
 if not os.path.exists(PICKLE_PATH):
     if not os.path.exists(CAFFEMODEL_PATH):
         import urllib
-        print "Downloading {}".format(caffemodel_url.split(os.sep)[-1])
+        print "Downloading {}".format(caffemodel_url.split('/')[-1])
         urllib.urlretrieve(caffemodel_url, CAFFEMODEL_PATH)
-    print "Converting {} to {}".format(caffemodel_url.split(os.sep)[-1], PICKLE_PATH.split(os.sep)[-1])
+    print "Converting {} to {}".format(caffemodel_url.split('/')[-1], PICKLE_PATH.split(os.sep)[-1])
     import chainer.links.caffe
     model = chainer.links.caffe.caffe_function.CaffeFunction(CAFFEMODEL_PATH)
     pickle.dump(model, open(PICKLE_PATH, "wb"))
