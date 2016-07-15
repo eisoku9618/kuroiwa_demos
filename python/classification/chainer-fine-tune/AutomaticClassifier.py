@@ -91,13 +91,8 @@ class MyFrame(wx.Frame):
             self.jp_font = jp_font_list[0]
 
     def setCNNmodel(self, path):
-        if not os.path.exists(path):
-            message = "model is not found"
-            print message
-            self.SetStatusText(message)
-        else:
-            model = pickle.load(open(path, "rb"))
-            self.__queue.put(model)
+        model = pickle.load(open(path, "rb"))
+        self.__queue.put(model)
 
     def onShow(self, event):
         """
@@ -110,9 +105,14 @@ class MyFrame(wx.Frame):
             NEW_MODEL_PATH.split(os.sep)[-1])
         print message
         self.SetStatusText(message)
-        job = multiprocessing.Process(target=self.setCNNmodel, args=(NEW_MODEL_PATH, ))
-        self.__jobs.append(job)
-        job.start()
+        if os.path.exists(NEW_MODEL_PATH):
+            job = multiprocessing.Process(target=self.setCNNmodel, args=(NEW_MODEL_PATH, ))
+            self.__jobs.append(job)
+            job.start()
+        else:
+            message = "model is not found"
+            print message
+            self.SetStatusText(message)
 
     def onIdle(self, event):
         if not self.__queue.empty():
