@@ -39,7 +39,10 @@ ref_model = pickle.load(open(PICKLE_PATH, "rb"))
 
 # CNN network
 print "Creating CNN"
-my_model = MyCNN(MEAN_PATH, 5).to_cpu()
+dir_list = os.listdir(os.path.join(dir_name, 'data'))
+dir_list = [os.path.join(dir_name, 'data/'+d) for d in dir_list]
+dir_list = filter(lambda d: os.path.isdir(d), dir_list)
+my_model = MyCNN(MEAN_PATH, len(dir_list)).to_cpu()
 copy_model(ref_model, my_model)
 
 # Training Parameters
@@ -55,9 +58,6 @@ img_list_train = []
 cls_list_train = []
 img_list_test = []
 cls_list_test = []
-dir_list = os.listdir(os.path.join(dir_name, 'data'))
-dir_list = [os.path.join(dir_name, 'data/'+d) for d in dir_list]
-dir_list = filter(lambda d: os.path.isdir(d), dir_list)
 for cls, d in enumerate(dir_list):
     print d.split('/')[-1] + ' found'
     data_num = len(os.listdir(d))
