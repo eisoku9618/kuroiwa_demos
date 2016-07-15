@@ -280,8 +280,8 @@ class MyImage(wx.Window):
         self.__img_path = fname
         self.__img_raw = wx.Image(fname)
         # self.onPaint will be called after this function called
-        # but we have to call onPaint before Refresh for no-4:3 images
-        self.onPaint(None)
+        # so we have to call onResize first for no-4:3 images
+        self.onResize(None)
         self.Refresh()
 
     def getImagePath(self):
