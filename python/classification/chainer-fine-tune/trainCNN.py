@@ -123,4 +123,4 @@ for epoch in range(1, EPOCHS+1):
         break
     optimizer.lr *= DECAY_FACTOR
 
-pickle.dump(my_model, open(NEW_MODEL_PATH, "wb"))
+pickle.dump(my_model, open(NEW_MODEL_PATH, "wb"), protocol=2)
