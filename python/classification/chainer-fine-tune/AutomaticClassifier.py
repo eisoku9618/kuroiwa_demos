@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import matplotlib
+matplotlib.use("WXAgg")
 import wx
 import wx.grid
 import math
