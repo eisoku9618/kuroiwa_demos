@@ -32,8 +32,12 @@ if not os.path.exists(PICKLE_PATH):
         urllib.urlretrieve(caffemodel_url, CAFFEMODEL_PATH)
     print "Converting {} to {}".format(caffemodel_url.split('/')[-1], PICKLE_PATH.split(os.sep)[-1])
     import chainer.links.caffe
+    # this code does not work in windows 32bit by 2GB limitation
+    # but it works in Ubuntu 32/64 bit. So please convert on ubuntu with live-usb
     model = chainer.links.caffe.caffe_function.CaffeFunction(CAFFEMODEL_PATH)
-    pickle.dump(model, open(PICKLE_PATH, "wb"))
+    # protocol=2 is very very important.
+    # it enable pickle.load(file) even on windows 32bit.
+    pickle.dump(model, open(PICKLE_PATH, "wb"), protocol=2)
 
 print "Loading {}".format(PICKLE_PATH.split(os.sep)[-1])
 ref_model = pickle.load(open(PICKLE_PATH, "rb"))
@@ -107,6 +111,7 @@ for epoch in range(1, EPOCHS+1):
         cur_cls_list = np.array([cls_list_train[idx] for idx in order], dtype=np.int32)
         my_model.zerograds()
         _, loss = my_model(cur_img_list, cur_cls_list)
+        # loss.backward() fails by Memory Error on windows 32bit...
         loss.backward()
         optimizer.update()
         sum_loss     += loss.data * BATCH_SIZE
@@ -118,4 +123,4 @@ for epoch in range(1, EPOCHS+1):
         break
     optimizer.lr *= DECAY_FACTOR
 
-pickle.dump(my_model, open(NEW_MODEL_PATH, "wb"))
+pickle.dump(my_model, open(NEW_MODEL_PATH, "wb"), protocol=2)
