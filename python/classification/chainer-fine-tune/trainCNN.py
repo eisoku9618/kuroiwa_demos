@@ -93,12 +93,14 @@ def test(model):
         cur_img_list = [load_image(img) for img in img_list_test[i:i+BATCH_SIZE]]
         cur_cls_list = np.array(cls_list_test[i:i+BATCH_SIZE], dtype=np.int32)
         _, loss = model(cur_img_list, cur_cls_list)
-        sum_loss     += loss.data * BATCH_SIZE
-        sum_accuracy += model.accuracy.data * BATCH_SIZE
+        CUR_SIZE = len(cur_cls_list)
+        sum_loss     += loss.data * CUR_SIZE
+        sum_accuracy += model.accuracy.data * CUR_SIZE
     print "test mean loss {a}, accuracy {b}".format(a=sum_loss/test_data_size, b=sum_accuracy/test_data_size)
     return sum_accuracy/test_data_size
 
 # train CNN
+ok_num = 0
 train_data_size = len(img_list_train)
 for epoch in range(1, EPOCHS+1):
     print "[{}] epoch {}".format(datetime.datetime.now().strftime("%H:%M:%S"), epoch)
@@ -114,11 +116,14 @@ for epoch in range(1, EPOCHS+1):
         # loss.backward() fails by Memory Error on windows 32bit...
         loss.backward()
         optimizer.update()
-        sum_loss     += loss.data * BATCH_SIZE
-        sum_accuracy += my_model.accuracy.data * BATCH_SIZE
+        CUR_SIZE = len(cur_cls_list)
+        sum_loss     += loss.data * CUR_SIZE
+        sum_accuracy += my_model.accuracy.data * CUR_SIZE
     print "train mean loss {a}, accuracy {b}".format(a=sum_loss/train_data_size, b=sum_accuracy/train_data_size)
     acc = test(my_model)
-    if acc > 0.999:
+    if acc > 0.999 and sum_accuracy/train_data_size > 0.99:
+        ok_num = ok_num + 1
+    if ok_num > 10:
         print "stop training because accuracy becomes over 99.9%"
         break
     optimizer.lr *= DECAY_FACTOR
