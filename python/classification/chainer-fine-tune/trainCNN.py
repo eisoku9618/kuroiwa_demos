@@ -19,6 +19,7 @@ MEAN_PATH = os.path.join(conf_dir_name, mean_url.split('/')[-1])
 CAFFEMODEL_PATH = os.path.join(conf_dir_name, caffemodel_url.split('/')[-1])
 PICKLE_PATH = os.path.join(conf_dir_name, 'bvlc_reference_caffenet.pkl')
 NEW_MODEL_PATH = os.path.join(conf_dir_name, 'new_model.pkl')
+LABEL_FILE_PATH = os.path.join(conf_dir_name, 'model_label.txt')
 
 if not os.path.exists(MEAN_PATH):
     import urllib
@@ -123,4 +124,8 @@ for epoch in range(1, EPOCHS+1):
         break
     optimizer.lr *= DECAY_FACTOR
 
+# save result
 pickle.dump(my_model, open(NEW_MODEL_PATH, "wb"), protocol=2)
+with open(LABEL_FILE_PATH, mode='w') as f:
+    for i, c in enumerate(dir_list):
+        f.write(str(i) + ":" + c.split(os.sep)[-1] + os.linesep)

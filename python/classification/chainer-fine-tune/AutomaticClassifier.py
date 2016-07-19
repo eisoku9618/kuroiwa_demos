@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import matplotlib
+matplotlib.use("WXAgg")
 import wx
 import wx.grid
+import wx.lib.newevent
 import math
 import os
-import multiprocessing
 import cPickle as pickle
 import numpy as np
 import skimage.io
@@ -15,6 +17,35 @@ import PIL.Image
 import datetime
 import webbrowser
 import tempfile
+import thread
+import csv
+
+# global variable
+(MyThreadEvent, EVT_MY_THREAD) = wx.lib.newevent.NewEvent()
+my_model = None
+dir_name = os.path.abspath(os.path.dirname(__file__))
+LABEL_FILE_PATH = os.path.join(os.path.join(dir_name, 'config'), 'model_label.txt')
+with open(LABEL_FILE_PATH, mode="r") as f:
+    reader = csv.reader(f, delimiter=":")
+    dir_list = [row[1] for row in reader]
+
+class MyThread(object):
+    """
+    See http://bty.sakura.ne.jp/wp/archives/626
+    """
+    def __init__(self, window):
+        self.window = window
+
+    def Start(self):
+        thread.start_new_thread(self.Run, ())
+
+    def Run(self):
+        dir_name = os.path.abspath(os.path.dirname(__file__))
+        NEW_MODEL_PATH = os.path.join(os.path.join(dir_name, 'config'), 'new_model.pkl')
+        global my_model
+        my_model = pickle.load(open(NEW_MODEL_PATH, "rb"))
+        event = MyThreadEvent()
+        wx.PostEvent(self.window, event)
 
 def getClassIndex(model, fname):
     img = skimage.img_as_float(skimage.io.imread(fname, as_grey=False)).astype(np.float32)
@@ -30,10 +61,8 @@ class MyFileDropTarget(wx.FileDropTarget):
 
     def OnDropFiles(self, x, y, filenames):
         fname = filenames[0]
-        global my_model
         if my_model:
             cls = getClassIndex(my_model, fname)
-            global dir_list
             self.panel.setPanel(fname, text=dir_list[cls])
         else:
             self.panel.setPanel(fname)
@@ -42,9 +71,6 @@ class MyFrame(wx.Frame):
     def __init__(self):
         wx.Frame.__init__(self, None, title="Classification", size=(600, 450))
         self.CreateStatusBar()
-
-        self.__jobs = []
-        self.__queue = multiprocessing.Queue()
 
         self.sz = wx.BoxSizer(wx.VERTICAL)
 
@@ -78,10 +104,10 @@ class MyFrame(wx.Frame):
             p.SetDropTarget(dt)
         self.__root_panel.SetSizer(self.__root_layout)
 
-        # about MultiProcess
+        # about Loading CNN model Process
         self.Bind(wx.EVT_SHOW, self.onShow)
-        self.Bind(wx.EVT_IDLE, self.onIdle)
         self.Bind(wx.EVT_CLOSE, self.onClose)
+        self.Bind(EVT_MY_THREAD, self.OnLoadComplete)
 
         # for Japanese fonts
         jp_font_list = [f for f in matplotlib.font_manager.findSystemFonts() if "mincho" in f]
@@ -90,9 +116,21 @@ class MyFrame(wx.Frame):
         else:
             self.jp_font = jp_font_list[0]
 
-    def setCNNmodel(self, path):
-        model = pickle.load(open(path, "rb"))
-        self.__queue.put(model)
+    def OnLoadComplete(self, event):
+        """
+        Loading CNNmodel takes a lot of time, so push it to background process
+        """
+        message = "[{}] Complete model loading".format(datetime.datetime.now().strftime("%H:%M:%S"))
+        print message
+        self.SetStatusText(message)
+        print dir_list
+        self.__root_panel.SetBackgroundColour('white')
+        for p in self.__panels:
+            if not p.isTextCustomized():
+                path = p.getImagePath()
+                cls = getClassIndex(my_model, path)
+                text = dir_list[cls]
+                p.setPanel(path, text)
 
     def onShow(self, event):
         """
@@ -105,34 +143,15 @@ class MyFrame(wx.Frame):
             NEW_MODEL_PATH.split(os.sep)[-1])
         print message
         self.SetStatusText(message)
-        if os.path.exists(NEW_MODEL_PATH):
-            job = multiprocessing.Process(target=self.setCNNmodel, args=(NEW_MODEL_PATH, ))
-            self.__jobs.append(job)
-            job.start()
-        else:
+        if not os.path.exists(NEW_MODEL_PATH):
             message = "model is not found"
             print message
             self.SetStatusText(message)
-
-    def onIdle(self, event):
-        if not self.__queue.empty():
-            message = "[{}] Complete model loading".format(datetime.datetime.now().strftime("%H:%M:%S"))
-            print message
-            self.SetStatusText(message)
-            global my_model
-            global dir_list
-            print dir_list
-            self.__root_panel.SetBackgroundColour('white')
-            my_model = self.__queue.get()
-            for p in self.__panels:
-                if not p.isTextCustomized():
-                    path = p.getImagePath()
-                    cls = getClassIndex(my_model, path)
-                    text = dir_list[cls]
-                    p.setPanel(path, text)
+        else:
+            my_thread = MyThread(self)
+            my_thread.Start()
 
     def onClose(self, event):
-        [job.terminate() for job in self.__jobs]
         self.Destroy()
 
     def onPrint(self, event):
@@ -229,7 +248,6 @@ class ExplanationDrawingPanel(wx.Panel):
         wx.Panel.__init__(self, parent, wx.ID_ANY, size=(-1, -1))
         layout = wx.BoxSizer(wx.VERTICAL)
         self.__button_img = MyImage(self)
-        global dir_list
         self.__text_expl = wx.ComboBox(self, wx.ID_ANY, "",
                                        choices=dir_list, style=wx.CB_DROPDOWN)
         layout.Add(self.__button_img, flag=wx.GROW | wx.ALIGN_CENTER, proportion=1)
@@ -393,12 +411,6 @@ class LayoutSelectionDialog(wx.Dialog):
             self.g12.SetValue(str(w_num))
 
 if __name__=="__main__":
-    my_model = None
-    dir_name = os.path.abspath(os.path.dirname(__file__))
-    dir_list = os.listdir(os.path.join(dir_name, 'data'))
-    dir_list = [os.path.join(os.path.join(dir_name, 'data'), d) for d in dir_list]
-    dir_list = filter(lambda d: os.path.isdir(d), dir_list)
-    dir_list = [d.split(os.sep)[-1] for d in dir_list]
     app = wx.App()
     frm = MyFrame()
     frm.Show()
