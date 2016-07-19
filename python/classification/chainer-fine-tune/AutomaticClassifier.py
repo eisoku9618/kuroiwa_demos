@@ -18,15 +18,16 @@ import datetime
 import webbrowser
 import tempfile
 import thread
+import csv
 
 # global variable
 (MyThreadEvent, EVT_MY_THREAD) = wx.lib.newevent.NewEvent()
 my_model = None
 dir_name = os.path.abspath(os.path.dirname(__file__))
-dir_list = os.listdir(os.path.join(dir_name, 'data'))
-dir_list = [os.path.join(os.path.join(dir_name, 'data'), d) for d in dir_list]
-dir_list = filter(lambda d: os.path.isdir(d), dir_list)
-dir_list = [d.split(os.sep)[-1] for d in dir_list]
+LABEL_FILE_PATH = os.path.join(os.path.join(dir_name, 'config'), 'model_label.txt')
+with open(LABEL_FILE_PATH, mode="r") as f:
+    reader = csv.reader(f, delimiter=":")
+    dir_list = [row[1] for row in reader]
 
 class MyThread(object):
     """
