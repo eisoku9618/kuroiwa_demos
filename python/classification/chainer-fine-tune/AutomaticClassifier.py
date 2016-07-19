@@ -49,6 +49,11 @@ class MyThread(object):
 
 def getClassIndex(model, fname):
     img = skimage.img_as_float(skimage.io.imread(fname, as_grey=False)).astype(np.float32)
+    if img.ndim == 2:
+        img = img[:, :, np.newaxis]
+        img = np.tile(img, (1, 1, 3))
+    elif img.shape[2] == 4:
+        img = img[:, :, :3]
     h, loss = model([img], np.array([0], dtype=np.int32))
     ans = h.data.flatten().tolist()
     print ans

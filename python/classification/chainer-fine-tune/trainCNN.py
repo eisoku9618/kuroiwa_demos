@@ -76,12 +76,11 @@ for cls, d in enumerate(dir_list):
         img_list_test.append(os.path.join(d, img))
         cls_list_test.append(cls)
 
-def load_image(filename, color=True):
-    img = skimage.img_as_float(skimage.io.imread(filename, as_grey=not color)).astype(np.float32)
+def load_image(filename):
+    img = skimage.img_as_float(skimage.io.imread(filename, as_grey=False)).astype(np.float32)
     if img.ndim == 2:
         img = img[:, :, np.newaxis]
-        if color:
-            img = np.tile(img, (1, 1, 3))
+        img = np.tile(img, (1, 1, 3))
     elif img.shape[2] == 4:
         img = img[:, :, :3]
     return img
