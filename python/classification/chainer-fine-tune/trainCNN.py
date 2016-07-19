@@ -53,7 +53,7 @@ copy_model(ref_model, my_model)
 
 # Training Parameters
 LEARNIN_RATE    = 0.01
-BATCH_SIZE      = 10
+BATCH_SIZE      = 10   # BATCH_SIZE should be bigger than len(dir_list), otherwise CNN will diverge. This is very important.
 EPOCHS          = 100
 DECAY_FACTOR    = 0.97
 optimizer = chainer.optimizers.SGD(LEARNIN_RATE)
