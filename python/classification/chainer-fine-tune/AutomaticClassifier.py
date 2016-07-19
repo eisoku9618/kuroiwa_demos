@@ -176,7 +176,7 @@ class MyFrame(wx.Frame):
             title = p.getText()
             if self.jp_font:
                 fp = matplotlib.font_manager.FontProperties(fname=self.jp_font)
-                ax_list[i].set_xlabel(title, fontproperties=fp)
+                ax_list[i].set_xlabel(title, fontproperties=fp, fontsize=20)
             else:
                 ax_list[i].set_xlabel(title)
             ax_list[i].tick_params(labelbottom='off', labelleft='off')
