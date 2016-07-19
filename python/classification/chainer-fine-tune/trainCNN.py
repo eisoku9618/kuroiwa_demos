@@ -122,9 +122,9 @@ for epoch in range(1, EPOCHS+1):
         sum_accuracy += my_model.accuracy.data * CUR_SIZE
     print "train mean loss {a}, accuracy {b}".format(a=sum_loss/train_data_size, b=sum_accuracy/train_data_size)
     acc = test(my_model)
-    if acc > 0.999 and sum_accuracy/train_data_size > 0.99:
+    if acc > 0.98 and sum_accuracy/train_data_size > 0.98:
         ok_num = ok_num + 1
-    if ok_num > 10:
+    if ok_num > 2:
         print "stop training because accuracy becomes over 99.9%"
         break
     optimizer.lr *= DECAY_FACTOR
