@@ -102,8 +102,8 @@ class MyFrame(wx.Frame):
         self.sz.Add(self.__root_panel, flag=wx.SHAPED | wx.ALIGN_CENTER, proportion=1)
         self.SetSizer(self.sz)
 
-        self.__panels = [ExplanationDrawingPanel(self.__root_panel) for i in range(6)]
-        self.__root_layout = wx.GridSizer(2, 3)
+        self.__panels = [ExplanationDrawingPanel(self.__root_panel) for i in range(9)]
+        self.__root_layout = wx.GridSizer(3, 3)
         for p in self.__panels:
             self.__root_layout.Add(p, flag=wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, border=10)
             dt = MyFileDropTarget(p)
