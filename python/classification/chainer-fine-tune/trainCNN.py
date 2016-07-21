@@ -9,6 +9,7 @@ import os
 import datetime
 import chainer
 from chainer import optimizers
+import imghdr
 
 # config files
 mean_url = 'https://github.com/BVLC/caffe/raw/master/python/caffe/imagenet/ilsvrc_2012_mean.npy'
@@ -66,13 +67,14 @@ img_list_test = []
 cls_list_test = []
 for cls, d in enumerate(dir_list):
     print d.split(os.sep)[-1] + ' found'
-    data_num = len(os.listdir(d))
+    img_list = filter(lambda img: imghdr.what(img), os.listdir(d)) # exclude .gitkeep or something
+    data_num = len(img_list)
     # assign 80% of all images are used as train data
-    for img in os.listdir(d)[0:data_num/10*8]:
+    for img in img_list[0:data_num/10*8]:
         img_list_train.append(os.path.join(d, img))
         cls_list_train.append(cls)
     # assign 20% of all images are used as test data
-    for img in os.listdir(d)[data_num/10*8:]:
+    for img in img_list[data_num/10*8:]:
         img_list_test.append(os.path.join(d, img))
         cls_list_test.append(cls)
 
