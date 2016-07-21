@@ -19,6 +19,7 @@ import webbrowser
 import tempfile
 import thread
 import csv
+from MyCNN import *
 
 # global variable
 (MyThreadEvent, EVT_MY_THREAD) = wx.lib.newevent.NewEvent()
