@@ -67,7 +67,7 @@ img_list_test = []
 cls_list_test = []
 for cls, d in enumerate(dir_list):
     print d.split(os.sep)[-1] + ' found'
-    img_list = filter(lambda img: imghdr.what(img), os.listdir(d)) # exclude .gitkeep or something
+    img_list = filter(lambda img: imghdr.what(os.path.join(d, img)), os.listdir(d)) # exclude .gitkeep or something
     data_num = len(img_list)
     # assign 80% of all images are used as train data
     for img in img_list[0:data_num/10*8]:
