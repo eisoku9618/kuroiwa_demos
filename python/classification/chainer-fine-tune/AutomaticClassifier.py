@@ -20,6 +20,7 @@ import tempfile
 import thread
 import csv
 from MyCNN import *
+from matplotlib.backends.backend_pdf import PdfPages
 
 # global variable
 (MyThreadEvent, EVT_MY_THREAD) = wx.lib.newevent.NewEvent()
@@ -73,24 +74,39 @@ class MyFileDropTarget(wx.FileDropTarget):
         else:
             self.panel.setPanel(fname)
 
+class MyMemory(object):
+    def __init__(self, h_num, w_num, title_list, img_path_list):
+        self.h_num = h_num
+        self.w_num = w_num
+        self.title_list = title_list
+        self.img_path_list = img_path_list
+
 class MyFrame(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, None, title="Classification", size=(600, 450))
+        wx.Frame.__init__(self, None, title="Classification", size=(800, 450))
         self.CreateStatusBar()
 
         self.sz = wx.BoxSizer(wx.VERTICAL)
 
+        # assume 2 page at most
+        self.mymemories = [None, None]
+
         # Menu Button : I don't use wx.Menu because it needs 2 mouse click steps for action
         btn_panel = wx.Panel(self, wx.ID_ANY)
         btn_sz = wx.BoxSizer(wx.HORIZONTAL)
-        btn_tips = ["Start Print", "Reset", "Select Layout", "Quit"]
-        btn_arts = [wx.ART_PRINT, wx.ART_DELETE, wx.ART_LIST_VIEW, wx.ART_QUIT]
-        btn_funcs = [self.onPrint, self.onReset, self.onLayout, self.onClose]
+        btn_tips = ["Start Print", "Reset", "Select Layout", "Go Back", "Go Forward", "Quit"]
+        btn_arts = [wx.ART_PRINT, wx.ART_DELETE, wx.ART_LIST_VIEW, wx.ART_GO_BACK, wx.ART_GO_FORWARD, wx.ART_QUIT]
+        btn_funcs = [self.onPrint, self.onReset, self.onLayout, self.onPrevNextCommon, self.onPrevNextCommon, self.onClose]
         for tip, art, func in zip(btn_tips, btn_arts, btn_funcs):
             bitmap = wx.ArtProvider.GetBitmap(art, size=(32, 32))
             btn = wx.BitmapButton(btn_panel, wx.ID_ANY, bitmap, size=(100, 50))
             btn.SetToolTip(wx.ToolTip(tip))
             btn.Bind(wx.EVT_BUTTON, func)
+            if art == wx.ART_GO_BACK:
+                self.gobackbtn = btn
+                btn.Disable()
+            if art == wx.ART_GO_FORWARD:
+                self.goforwardbtn = btn
             btn_sz.Add(btn, flag=wx.GROW | wx.RIGHT, border=20)
         btn_panel.SetSizer(btn_sz)
 
@@ -157,10 +173,49 @@ class MyFrame(wx.Frame):
             my_thread = MyThread(self)
             my_thread.Start()
 
+    def onPrevNextCommon(self, event):
+        if event.GetEventObject().GetToolTip().GetTip() == "Go Back":
+            self.gobackbtn.Disable()
+            self.goforwardbtn.Enable()
+            memory_flag = 1
+        elif event.GetEventObject().GetToolTip().GetTip() == "Go Forward":
+            self.gobackbtn.Enable()
+            self.goforwardbtn.Disable()
+            memory_flag = 0
+        h_num = self.__root_layout.GetRows()
+        w_num = self.__root_layout.GetCols()
+        title_list = [p.getText() for p in self.__panels]
+        img_path_list = [p.getImagePath() for p in self.__panels]
+        self.mymemories[memory_flag] = MyMemory(h_num, w_num, title_list, img_path_list)
+        # clear pages
+        self.onReset(None)
+        if self.mymemories[1-memory_flag] != None:
+            h_num = self.mymemories[1-memory_flag].h_num
+            w_num = self.mymemories[1-memory_flag].w_num
+            title_list = self.mymemories[1-memory_flag].title_list
+            img_path_list = self.mymemories[1-memory_flag].img_path_list
+            if h_num * 3 < w_num * 4:
+                # Landscape
+                new_size = wx.Size(1000*math.sqrt(2), 1000)
+            else:
+                # Portrait
+                new_size = wx.Size(1000, 1000*math.sqrt(2))
+            # ew have to detach before resize
+            self.sz.Detach(self.__root_panel)
+            self.__root_panel.SetSize(new_size)
+            self.sz.Add(self.__root_panel, flag=wx.SHAPED | wx.ALIGN_CENTER, proportion=1)
+            self.changeLayout(h_num, w_num)
+            for p, tl, ipl in zip(self.__panels, title_list, img_path_list):
+                if ipl != None:
+                    p.setPanel(ipl, tl)
+                else:
+                    # no image in this case
+                    pass
+
     def onClose(self, event):
         self.Destroy()
 
-    def onPrint(self, event):
+    def printCurrentPage(self):
         h_num = self.__root_layout.GetRows()
         w_num = self.__root_layout.GetCols()
         f, (axes) = matplotlib.pyplot.subplots(h_num, w_num)
@@ -186,13 +241,65 @@ class MyFrame(wx.Frame):
             for s in ax_list[i].spines.values():
                 s.set_visible(False)
         f.tight_layout()
+        return f
+
+    def printMemory(self, memory):
+        h_num = memory.h_num
+        w_num = memory.w_num
+        f, (axes) = matplotlib.pyplot.subplots(h_num, w_num)
+        # See http://stackoverflow.com/questions/15571267/python-a4-size-for-a-plot
+        if h_num * 3 < w_num * 4:
+            f.set_size_inches(11.69, 8.27)
+        else:
+            f.set_size_inches(8.27, 11.69)
+        ax_list = axes.flatten()
+        for i, (title, img_path) in enumerate(zip(memory.title_list, memory.img_path_list)):
+            if img_path:
+                ax_list[i].imshow(PIL.Image.open(img_path))
+            if self.jp_font:
+                fp = matplotlib.font_manager.FontProperties(fname=self.jp_font)
+                ax_list[i].set_xlabel(title, fontproperties=fp, fontsize=20)
+            else:
+                ax_list[i].set_xlabel(title)
+            ax_list[i].tick_params(labelbottom='off', labelleft='off')
+            ax_list[i].get_xaxis().set_ticks_position('none')
+            ax_list[i].get_yaxis().set_ticks_position('none')
+            for s in ax_list[i].spines.values():
+                s.set_visible(False)
+        f.tight_layout()
+        return f
+
+    def onPrint(self, event):
         now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
         out_fname = os.path.join(tempfile.gettempdir(), "output_{}.pdf".format(now))
-        f.savefig(out_fname)
+        with PdfPages(out_fname) as pdf:
+            if self.gobackbtn.IsEnabled() == False:
+                # now is first page
+                if self.mymemories[1] == None or len([x for x in [self.mymemories[1].img_path_list] if x != None]) == 0:
+                    # we don't have second page
+                    self.printCurrentPage()
+                    pdf.savefig()
+                else:
+                    # we have second page
+                    self.printCurrentPage()
+                    pdf.savefig()
+                    self.printMemory(self.mymemories[1])
+                    pdf.savefig()
+            else:
+                # now is second page
+                self.printMemory(self.mymemories[0])
+                pdf.savefig()
+                self.printCurrentPage()
+                pdf.savefig()
+            d = pdf.infodict()
+            d['Title'] = 'Automatic Classification'
+            d['Author'] = 'Eisoku Kuroiwa'
+            d['Subject'] = 'with CNN'
+            d['Keywords'] = 'python, chainer, caffe, wxpython, matplotlib, imagenet'
+            d['CreationDate'] = datetime.datetime.now()
+            d['ModDate'] = datetime.datetime.today()
         # See http://stackoverflow.com/questions/1679798/how-to-open-a-file-with-the-standard-application
         webbrowser.open_new_tab(out_fname)
-        # import subprocess
-        # subprocess.Popen([out_fname], shell=True)
 
     def onReset(self, event):
         for p in self.__panels:
@@ -222,6 +329,8 @@ class MyFrame(wx.Frame):
 
     def changeLayout(self, h, w):
         if self.__root_layout.GetRows() == h and self.__root_layout.GetCols() == w:
+            # I don't know why but we need this line ...
+            self.sz.Layout()
             return
         # update sizer
         new_root_layout = wx.GridSizer(h, w)
