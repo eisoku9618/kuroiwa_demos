@@ -110,6 +110,7 @@ for epoch in range(1, EPOCHS+1):
     sum_accuracy = 0.0
     sum_loss     = 0.0
     for i in range(0, train_data_size, BATCH_SIZE):
+        print "{}/{}".format(range(0, train_data_size, BATCH_SIZE).index(i) + 1, len(range(0, train_data_size, BATCH_SIZE)))
         order = indices[i:i+BATCH_SIZE]
         cur_img_list = [load_image(img_list_train[idx]) for idx in order]
         cur_cls_list = np.array([cls_list_train[idx] for idx in order], dtype=np.int32)
