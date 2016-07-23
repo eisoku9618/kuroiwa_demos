@@ -67,7 +67,7 @@ img_list_test = []
 cls_list_test = []
 for cls, d in enumerate(dir_list):
     print d.split(os.sep)[-1] + ' found'
-    img_list = filter(lambda img: imghdr.what(img), os.listdir(d)) # exclude .gitkeep or something
+    img_list = filter(lambda img: imghdr.what(os.path.join(d, img)), os.listdir(d)) # exclude .gitkeep or something
     data_num = len(img_list)
     # assign 80% of all images are used as train data
     for img in img_list[0:data_num/10*8]:
@@ -110,6 +110,7 @@ for epoch in range(1, EPOCHS+1):
     sum_accuracy = 0.0
     sum_loss     = 0.0
     for i in range(0, train_data_size, BATCH_SIZE):
+        print "{}/{}".format(range(0, train_data_size, BATCH_SIZE).index(i) + 1, len(range(0, train_data_size, BATCH_SIZE)))
         order = indices[i:i+BATCH_SIZE]
         cur_img_list = [load_image(img_list_train[idx]) for idx in order]
         cur_cls_list = np.array([cls_list_train[idx] for idx in order], dtype=np.int32)
