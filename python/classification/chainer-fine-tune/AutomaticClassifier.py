@@ -222,6 +222,8 @@ class MyFrame(wx.Frame):
 
     def changeLayout(self, h, w):
         if self.__root_layout.GetRows() == h and self.__root_layout.GetCols() == w:
+            # I don't know why but we need this line ...
+            self.sz.Layout()
             return
         # update sizer
         new_root_layout = wx.GridSizer(h, w)
