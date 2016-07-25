@@ -215,9 +215,7 @@ class MyFrame(wx.Frame):
     def onClose(self, event):
         self.Destroy()
 
-    def printCurrentPage(self):
-        h_num = self.__root_layout.GetRows()
-        w_num = self.__root_layout.GetCols()
+    def printCommon(self, h_num, w_num):
         f, (axes) = matplotlib.pyplot.subplots(h_num, w_num)
         # See http://stackoverflow.com/questions/15571267/python-a4-size-for-a-plot
         if h_num * 3 < w_num * 4:
@@ -243,31 +241,15 @@ class MyFrame(wx.Frame):
         f.tight_layout()
         return f
 
+    def printCurrentPage(self):
+        h_num = self.__root_layout.GetRows()
+        w_num = self.__root_layout.GetCols()
+        return self.printCommon(h_num, w_num)
+
     def printMemory(self, memory):
         h_num = memory.h_num
         w_num = memory.w_num
-        f, (axes) = matplotlib.pyplot.subplots(h_num, w_num)
-        # See http://stackoverflow.com/questions/15571267/python-a4-size-for-a-plot
-        if h_num * 3 < w_num * 4:
-            f.set_size_inches(11.69, 8.27)
-        else:
-            f.set_size_inches(8.27, 11.69)
-        ax_list = axes.flatten()
-        for i, (title, img_path) in enumerate(zip(memory.title_list, memory.img_path_list)):
-            if img_path:
-                ax_list[i].imshow(PIL.Image.open(img_path))
-            if self.jp_font:
-                fp = matplotlib.font_manager.FontProperties(fname=self.jp_font)
-                ax_list[i].set_xlabel(title, fontproperties=fp, fontsize=20)
-            else:
-                ax_list[i].set_xlabel(title)
-            ax_list[i].tick_params(labelbottom='off', labelleft='off')
-            ax_list[i].get_xaxis().set_ticks_position('none')
-            ax_list[i].get_yaxis().set_ticks_position('none')
-            for s in ax_list[i].spines.values():
-                s.set_visible(False)
-        f.tight_layout()
-        return f
+        return self.printCommon(h_num, w_num)
 
     def onPrint(self, event):
         now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
