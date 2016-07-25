@@ -230,11 +230,17 @@ class MyFrame(wx.Frame):
             if img_path:
                 ax_list[i].imshow(PIL.Image.open(img_path))
             title = p.getText()
+            if w_num == 4:
+                fontsize = 14
+            elif w_num == 3:
+                fontsize = 18
+            else:
+                fontsize = 20
             if self.jp_font:
                 fp = matplotlib.font_manager.FontProperties(fname=self.jp_font)
-                ax_list[i].set_xlabel(title, fontproperties=fp, fontsize=20)
+                ax_list[i].set_xlabel(title, fontproperties=fp, fontsize=fontsize)
             else:
-                ax_list[i].set_xlabel(title)
+                ax_list[i].set_xlabel(title, fontsize=fontsize)
             ax_list[i].tick_params(labelbottom='off', labelleft='off')
             ax_list[i].get_xaxis().set_ticks_position('none')
             ax_list[i].get_yaxis().set_ticks_position('none')
