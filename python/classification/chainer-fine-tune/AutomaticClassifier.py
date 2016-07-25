@@ -216,6 +216,7 @@ class MyFrame(wx.Frame):
 
     def onClose(self, event):
         self.Destroy()
+        exit(-1)                # we need this because webbrowser.open_new_tab preventsxs exit
 
     def printCommon(self, h_num, w_num):
         f, (axes) = matplotlib.pyplot.subplots(h_num, w_num)
