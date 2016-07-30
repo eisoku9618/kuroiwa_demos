@@ -110,11 +110,18 @@ class MyFrame(wx.Frame):
             btn_sz.Add(btn, flag=wx.GROW | wx.RIGHT, border=20)
         btn_panel.SetSizer(btn_sz)
 
+        # Information Panel
+        info_panel = wx.Panel(self, wx.ID_ANY)
+        info_sz = wx.BoxSizer(wx.HORIZONTAL)
+        info_sz.Add(wx.StaticText(info_panel, wx.ID_ANY, "ShortCut Key: Windows Key + Right Arrow / Windows Key + Left Arrow / Windows Key + E / Alt + Tab"))
+        info_panel.SetSizer(info_sz)
+
         # The aspect ratio of root panel shoud be the one of A4
         self.__root_panel = wx.Panel(self, wx.ID_ANY, size=(1000*math.sqrt(2), 1000))
         self.__root_panel.SetBackgroundColour(wx.Colour(255, 255, 200))
 
         self.sz.Add(btn_panel, flag=wx.ALIGN_LEFT)
+        self.sz.Add(info_panel, flag=wx.ALIGN_LEFT)
         self.sz.Add(self.__root_panel, flag=wx.SHAPED | wx.ALIGN_CENTER, proportion=1)
         self.SetSizer(self.sz)
 
