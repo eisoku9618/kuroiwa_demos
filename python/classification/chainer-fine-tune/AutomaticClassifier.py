@@ -218,7 +218,7 @@ class MyFrame(wx.Frame):
         self.Destroy()
         exit(-1)                # we need this because webbrowser.open_new_tab preventsxs exit
 
-    def printCommon(self, h_num, w_num):
+    def printCommon(self, h_num, w_num, title_list, img_path_list):
         f, (axes) = matplotlib.pyplot.subplots(h_num, w_num)
         # See http://stackoverflow.com/questions/15571267/python-a4-size-for-a-plot
         if h_num * 3 < w_num * 4:
@@ -226,11 +226,9 @@ class MyFrame(wx.Frame):
         else:
             f.set_size_inches(8.27, 11.69)
         ax_list = axes.flatten()
-        for i, p in enumerate(self.__panels):
-            img_path = p.getImagePath()
+        for i, (title, img_path) in enumerate(zip(title_list, img_path_list)):
             if img_path:
                 ax_list[i].imshow(PIL.Image.open(img_path))
-            title = p.getText()
             if w_num == 4:
                 fontsize = 14
             elif w_num == 3:
@@ -253,12 +251,16 @@ class MyFrame(wx.Frame):
     def printCurrentPage(self):
         h_num = self.__root_layout.GetRows()
         w_num = self.__root_layout.GetCols()
-        return self.printCommon(h_num, w_num)
+        title_list = [p.getText() for p in self.__panels]
+        img_path_list = [p.getImagePath() for p in self.__panels]
+        return self.printCommon(h_num, w_num, title_list, img_path_list)
 
     def printMemory(self, memory):
         h_num = memory.h_num
         w_num = memory.w_num
-        return self.printCommon(h_num, w_num)
+        title_list = memory.title_list
+        img_path_list = memory.img_path_list
+        return self.printCommon(h_num, w_num, title_list, img_path_list)
 
     def onPrint(self, event):
         now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
