@@ -213,7 +213,7 @@ class MyFrame(wx.Frame):
             self.sz.Detach(self.__root_panel)
             self.__root_panel.SetSize(new_size)
             self.sz.Add(self.__root_panel, flag=wx.SHAPED | wx.ALIGN_CENTER, proportion=1)
-            self.changeLayout(h_num, w_num)
+            self.changeLayout(h_num, w_num, flag=True)
             for p, tl, ipl in zip(self.__panels, title_list, img_path_list):
                 if ipl != None:
                     p.setPanel(ipl, tl)
@@ -327,8 +327,8 @@ class MyFrame(wx.Frame):
         finally:
             dialog.Destroy()
 
-    def changeLayout(self, h, w):
-        if self.__root_layout.GetRows() == h and self.__root_layout.GetCols() == w:
+    def changeLayout(self, h, w, flag=False):
+        if self.__root_layout.GetRows() == h and self.__root_layout.GetCols() == w and not flag:
             # I don't know why but we need this line ...
             self.sz.Layout()
             return
