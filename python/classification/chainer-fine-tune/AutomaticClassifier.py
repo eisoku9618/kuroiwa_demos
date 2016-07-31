@@ -89,7 +89,9 @@ class MyFrame(wx.Frame):
         self.sz = wx.BoxSizer(wx.VERTICAL)
 
         # assume 2 page at most
-        self.mymemories = [None, None]
+        self.cur_page = 0
+        self.max_page = 3
+        self.mymemories = [None for i in range(self.max_page + 1)]
 
         # Menu Button : I don't use wx.Menu because it needs 2 mouse click steps for action
         btn_panel = wx.Panel(self, wx.ID_ANY)
@@ -183,26 +185,31 @@ class MyFrame(wx.Frame):
             my_thread.Start()
 
     def onPrevNextCommon(self, event):
+        memory_page = self.cur_page
         if event.GetEventObject().GetToolTip().GetTip() == "Go Back":
-            self.gobackbtn.Disable()
-            self.goforwardbtn.Enable()
-            memory_flag = 1
+            self.cur_page = memory_page - 1
+            if self.cur_page == 0:
+                self.gobackbtn.Disable()
+            if self.cur_page == self.max_page - 1:
+                self.goforwardbtn.Enable()
         elif event.GetEventObject().GetToolTip().GetTip() == "Go Forward":
-            self.gobackbtn.Enable()
-            self.goforwardbtn.Disable()
-            memory_flag = 0
+            self.cur_page = memory_page + 1
+            if self.cur_page == self.max_page:
+                self.goforwardbtn.Disable()
+            if self.cur_page == 1:
+                self.gobackbtn.Enable()
         h_num = self.__root_layout.GetRows()
         w_num = self.__root_layout.GetCols()
         title_list = [p.getText() for p in self.__panels]
         img_path_list = [p.getImagePath() for p in self.__panels]
-        self.mymemories[memory_flag] = MyMemory(h_num, w_num, title_list, img_path_list)
+        self.mymemories[memory_page] = MyMemory(h_num, w_num, title_list, img_path_list)
         # clear pages
         self.onReset(None)
-        if self.mymemories[1-memory_flag] != None:
-            h_num = self.mymemories[1-memory_flag].h_num
-            w_num = self.mymemories[1-memory_flag].w_num
-            title_list = self.mymemories[1-memory_flag].title_list
-            img_path_list = self.mymemories[1-memory_flag].img_path_list
+        if self.mymemories[self.cur_page] != None:
+            h_num         = self.mymemories[self.cur_page].h_num
+            w_num         = self.mymemories[self.cur_page].w_num
+            title_list    = self.mymemories[self.cur_page].title_list
+            img_path_list = self.mymemories[self.cur_page].img_path_list
             if h_num * 3 < w_num * 4:
                 # Landscape
                 new_size = wx.Size(1000*math.sqrt(2), 1000)
@@ -273,24 +280,13 @@ class MyFrame(wx.Frame):
         now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
         out_fname = os.path.join(tempfile.gettempdir(), "output_{}.pdf".format(now))
         with PdfPages(out_fname) as pdf:
-            if self.gobackbtn.IsEnabled() == False:
-                # now is first page
-                if self.mymemories[1] == None or len([x for x in [self.mymemories[1].img_path_list] if x != None]) == 0:
-                    # we don't have second page
+            for i, m in enumerate(self.mymemories):
+                if i == self.cur_page:
                     self.printCurrentPage()
                     pdf.savefig()
-                else:
-                    # we have second page
-                    self.printCurrentPage()
+                elif m != None:
+                    self.printMemory(m)
                     pdf.savefig()
-                    self.printMemory(self.mymemories[1])
-                    pdf.savefig()
-            else:
-                # now is second page
-                self.printMemory(self.mymemories[0])
-                pdf.savefig()
-                self.printCurrentPage()
-                pdf.savefig()
             d = pdf.infodict()
             d['Title'] = 'Automatic Classification'
             d['Author'] = 'Eisoku Kuroiwa'
