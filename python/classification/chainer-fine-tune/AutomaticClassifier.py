@@ -11,6 +11,7 @@ import os
 import cPickle as pickle
 import numpy as np
 import skimage.io
+skimage.io.use_plugin("matplotlib")
 import matplotlib.pyplot
 import matplotlib.font_manager
 import PIL.Image
