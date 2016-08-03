@@ -69,12 +69,13 @@ for cls, d in enumerate(dir_list):
     print d.split(os.sep)[-1] + ' found'
     img_list = filter(lambda img: imghdr.what(os.path.join(d, img)), os.listdir(d)) # exclude .gitkeep or something
     data_num = len(img_list)
+    indices = np.random.permutation(data_num)
     # assign 80% of all images are used as train data
-    for img in img_list[0:data_num/10*8]:
+    for img in [img_list[x] for x in indices[0:data_num/10*8]]:
         img_list_train.append(os.path.join(d, img))
         cls_list_train.append(cls)
     # assign 20% of all images are used as test data
-    for img in img_list[data_num/10*8:]:
+    for img in [img_list[x] for x in indices[data_num/10*8:]]:
         img_list_test.append(os.path.join(d, img))
         cls_list_test.append(cls)
 
