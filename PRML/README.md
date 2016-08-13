@@ -3,7 +3,7 @@
 - [1章](http://nbviewer.jupyter.org/github/eisoku9618/kuroiwa_demos/blob/master/PRML/chapter01.ipynb)
 - 2章
 - [3章](http://nbviewer.jupyter.org/github/eisoku9618/kuroiwa_demos/blob/master/PRML/chapter03.ipynb)
-- 4章
+- [4章](http://nbviewer.jupyter.org/github/eisoku9618/kuroiwa_demos/blob/master/PRML/chapter04.ipynb)
 - 5章
 - 6章
 - 7章
