@@ -9,7 +9,16 @@ install:
 script:
   - ls
   - pwd
-  - cd tex
-  - make
+  - (cd tex && make)
 after_failure:
   - echo "failure"
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: DW10UU1zF+PdJpEFgr86E5hvkdrbOPl3jQphu9/Nu9lOxF+Tf0S9meIIzYfxxf8cAHeMGBhsioK/8AvIixOnNrePx8GqTkKnK1w4EQCdl7wRxkEQKEY12PBAUlvW2KYzuv/AVsxh1wCXF09Aoc82MIVD9moX/IYCuoeg1mKcXQJdfSQucdjGfay/GMGrWxmMhBvfNvPqCcGgRdb0eiRg/2y6WAcqWvvJx62UXOSRQERB5454tysb8xGYVHMI7MZuVxEI3PI9413f4QCr2xZDFFb40sAm7bKxLhboza+fnMxQQBq0Zi/Vnuk1sv2n/OqzJR8hSVacMch4+aLJUodKJVGt90r6x2ZVQxJ3XvTqDfl4dehX8o6Peu7umgjWJnlwxIExngRkP2FDIYa3DhJby7XIjLNzGelyRYh70J+A73ww5uTlYw8fzHR6R1bDUKLMFfq47sVsweWVA+SzmrLRvtF+ySnkqUcrE5T5sVF9YUQwSFEoLqJZ89JMn/GpcZrTyNMDItmC5IQF2hbSDTuSPe7oxrfJFbyfwtdUTArMCH+1TstYMWwO9llGDnnCSPWfgxA1/Bjs+OxB10l0R7+wBHWwWUci10RNpkCVJz86dATVG3U5qPXa/Ra4RJi/flcjIURN5gL88+Rvb4HFuzn9sIK81iMc4QVa1lQgxsDhXr0=
+  file: tex/KalmanFilter/kf.pdf
+  on:
+    repo: eisoku9618/kuroiwa_demos
+    all_branches: true
+    tags: true
