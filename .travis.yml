@@ -9,8 +9,7 @@ install:
 script:
   - ls
   - pwd
-  - cd tex
-  - make
+  - (cd tex && make)
 after_failure:
   - echo "failure"
 deploy:
