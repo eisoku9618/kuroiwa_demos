@@ -4,8 +4,7 @@
 
 ### 数式メモ
 TeX関連は https://github.com/eisoku9618/report を``subtree add``した
-- [KalmanFilter](https://github.com/eisoku9618/kuroiwa_demos/blob/master/tex/KalmanFilter/kf.pdf)
-
+- [KalmanFilter](https://github.com/eisoku9618/kuroiwa_demos/releases/latest) の kf.pdf
 ### PRMLメモ
 - [PRMLを読んで学んだこと](https://github.com/eisoku9618/kuroiwa_demos/blob/master/PRML/README.md)
 
