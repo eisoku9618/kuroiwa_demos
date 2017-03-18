@@ -9,6 +9,10 @@ TeX関連は https://github.com/eisoku9618/report を``subtree add``した
 ### PRMLメモ
 - [PRMLを読んで学んだこと](https://github.com/eisoku9618/kuroiwa_demos/blob/master/PRML/README.md)
 
+### Jupyterメモ
+- [Jupyterメモ](https://github.com/eisoku9618/kuroiwa_demos/blob/master/python/jupyter/README.md)
+
+
 ### Ubuntu iso をカスタマイズする方法
 ```
 sudo apt-get install uck
