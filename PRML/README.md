@@ -1,5 +1,5 @@
 ## PRMLを読んで学んだことメモ
-
+1;4205;0c
 - [1章](http://nbviewer.jupyter.org/github/eisoku9618/kuroiwa_demos/blob/master/PRML/chapter01.ipynb)
 - 2章
 - [3章](http://nbviewer.jupyter.org/github/eisoku9618/kuroiwa_demos/blob/master/PRML/chapter03.ipynb)
@@ -8,7 +8,7 @@
 - 6章
 - 7章
 - 8章
-- 9章
+- [9章](http://nbviewer.jupyter.org/github/eisoku9618/kuroiwa_demos/blob/master/PRML/chapter09.ipynb)
 - 10章
 - 11章
 - 12章
