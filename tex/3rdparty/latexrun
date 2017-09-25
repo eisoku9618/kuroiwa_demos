@@ -517,8 +517,7 @@ def run_tasks(tasks, max_iterations):
         for task in tasks:
             if task.stable():
                 nstable += 1
-                if nstable == len(tasks)+1:
-                    task.run()
+                if nstable == len(tasks):
                     debug('fixed-point reached')
                     return True
             else:
