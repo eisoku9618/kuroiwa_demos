@@ -2,6 +2,7 @@ language: generic
 sudo: required
 dist: trusty
 before_install:
+  - sudo aptitude update
   - sudo aptitude -y install texlive-lang-cjk texlive-xetex texlive-fonts-recommended
 install:
   - mkdir -p ${HOME}/texmf/tex/latex
