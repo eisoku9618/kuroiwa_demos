@@ -1,0 +1,5 @@
+<launch>
+  <param name="robot_description"
+         command="$(find xacro)/xacro '$(find pr2_description)/robots/pr2.urdf.xacro'" />
+  <node name="test" pkg="test_pkg" type="test_pkg_node" output="screen"/>
+</launch>
