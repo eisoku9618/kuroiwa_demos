@@ -33,6 +33,9 @@ RUN apt update && apt install -y --no-install-recommends \
     liblog4cxx-dev \
     libjsoncpp-dev \
     libqhull-dev \
+    tmux \
+    emacs \
+    htop \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm i -g @openai/codex

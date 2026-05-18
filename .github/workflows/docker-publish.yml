@@ -48,7 +48,7 @@ jobs:
         uses: peter-evans/dockerhub-description@v5
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_DESCRIPTION_TOKEN }}
           repository: eisoku9618/${{ matrix.image.name }}
           readme-filepath: docker/${{ matrix.image.name }}/README.md
           short-description: Codex workspace image built from GitHub Actions
