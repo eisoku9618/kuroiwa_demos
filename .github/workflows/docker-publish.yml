@@ -20,8 +20,6 @@ jobs:
       matrix:
         image:
           - name: codex-workspace
-            context: docker/codex-workspace
-            dockerfile: docker/codex-workspace/Dockerfile
             tag: ubuntu24.04
 
     steps:
@@ -40,9 +38,17 @@ jobs:
       - name: Build and push ${{ matrix.image.name }}
         uses: docker/build-push-action@v6
         with:
-          context: ${{ matrix.image.context }}
-          file: ${{ matrix.image.dockerfile }}
+          context: docker/${{ matrix.image.name }}
+          file: docker/${{ matrix.image.name }}/Dockerfile
           push: true
           tags: |
             ${{ env.DOCKERHUB_NAMESPACE }}/${{ matrix.image.name }}:${{ matrix.image.tag }}
             ${{ env.DOCKERHUB_NAMESPACE }}/${{ matrix.image.name }}:latest
+      - name: Update Docker Hub overview
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: eisoku9618/${{ matrix.image.name }}
+          readme-filepath: docker/${{ matrix.image.name }}/README.md
+          short-description: Codex workspace image built from GitHub Actions

@@ -4,6 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Tokyo
 
 RUN apt update && apt install -y --no-install-recommends \
+    bash-completion \
     ca-certificates \
     curl \
     git \
